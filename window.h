@@ -10,7 +10,7 @@
 
 #include"utils.h"
 #include"text.h"
-
+#include"texture.h"
 namespace titanium
 {
 	class text;
@@ -21,8 +21,7 @@ namespace titanium
 		SDL_Window* _sdl_window{ nullptr };
 		SDL_Renderer* _sdl_renderer{ nullptr };
 		SDL_Event _event;
-		v2 _render_position;
-		std::map<SDL_Scancode,bool> _key_register;
+		std::map<SDL_Scancode, bool> _key_register;
 		void destroy()
 		{
 			SDL_DestroyWindow(_sdl_window);
@@ -44,11 +43,9 @@ namespace titanium
 				_sdl_renderer = SDL_CreateRenderer(_sdl_window, -1, 0);
 			}
 		}
-		int counter = 0;
-		void move_view(const int offset_x, const int offset_y)
+		bool is_running() const
 		{
-			_render_position.x += offset_x;
-			_render_position.y += offset_y;
+			return _sdl_window != nullptr;
 		}
 		void render()
 		{
@@ -68,7 +65,6 @@ namespace titanium
 			SDL_RenderPresent(_sdl_renderer);
 			SDL_SetRenderDrawColor(_sdl_renderer, 0, 0, 0, 0);
 			SDL_RenderClear(_sdl_renderer);
-			counter = 0;
 		}
 		bool key_pressed(const SDL_Scancode code)
 		{
@@ -88,17 +84,21 @@ namespace titanium
 			SDL_Rect rect{ rectangle.transform_to_rect() };
 			SDL_SetRenderDrawColor(_sdl_renderer, color.r, color.g, color.b, color.a);
 			SDL_RenderFillRect(_sdl_renderer, &rect);
-			counter++;
 		}
-		void draw_text(text &t)
+		void draw_text(text& t)
 		{
 			t.draw(_sdl_renderer);
 			SDL_Rect dst{ t.transform_to_rect() };
 			SDL_RenderCopy(_sdl_renderer, t._texture, 0, &dst);
 		}
-		bool is_running() const
+		void load_texture(texture& texture_to_load)
 		{
-			return _sdl_window != nullptr;
+			texture_to_load.load(_sdl_renderer);
+		}
+		void draw_texture(object& obj)
+		{
+			SDL_Rect dst{ obj.get_position().x,obj.get_position().y,obj.get_scale().x * obj._texture.get_texture_size().x,obj.get_scale().y * obj._texture.get_texture_size().y };
+			SDL_RenderCopy(_sdl_renderer, obj._texture._raw_texture, 0, &dst);
 		}
 	};
 }

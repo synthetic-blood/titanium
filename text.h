@@ -21,10 +21,6 @@ namespace titanium
 
 			if (_font == nullptr)
 				exit(1);
-			else
-			{
-				SDL_Log("[font] loaded %s", name.c_str());
-			}
 		}
 		~font()
 		{
@@ -40,7 +36,7 @@ namespace titanium
 		SDL_Surface* _surface{ nullptr };
 		SDL_Texture* _texture{ nullptr };
 		bool text_changed{ false };
-
+		v2<> _text_box_size;
 		SDL_Texture* draw(SDL_Renderer* renderer)
 		{
 			if (text_changed)
@@ -54,17 +50,17 @@ namespace titanium
 		}
 		void regenerate_box()
 		{
-			set_size({ _surface->w,_surface->h });
+
 		}
 	public:
-		text(font& display_font, v2 new_position) :
-			object(new_position, { 0,0 }),
+		text(font& display_font, v2<> new_position) :
+			object(new_position),
 			_text_font(&display_font) {}
 		void set_text(const std::string new_text)
 		{
 			_text_raw = new_text;
-			_surface = TTF_RenderText_Blended(_text_font->_font, _text_raw.c_str(), { 255,255,255,255 });
-			regenerate_box();
+			_surface = TTF_RenderText_Blended(_text_font->_font, _text_raw.c_str(), { 255,255,255 });
+			_text_box_size = { _surface->w,_surface->h };
 			text_changed = true;
 		}
 	};
