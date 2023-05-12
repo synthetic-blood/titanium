@@ -16,19 +16,23 @@ namespace titanium
 		v2<> _size;
 		std::optional<object*> _parent{ std::nullopt };
 		texture _texture;
-		v2<int> get_size() const
+	public:
+		v2<int> virtual get_size() const
 		{
 			return _texture.get_texture_size() * _scale;
 		}
-	public:
 		std::string name;
 		void set_pivot(v2<float> new_pivot)
 		{
 			_pivot = new_pivot;
 		}
+		v2<float> get_pivot() const
+		{
+			return _pivot;
+		}
 		SDL_Rect transform_to_rect()
 		{
-			return SDL_Rect{ get_position().x,get_position().y,(int)_scale.x,(int)_scale.y };
+			return SDL_Rect{ get_position().x,get_position().y,get_size().x,get_size().y };
 		}
 
 		v2<> get_absolute_position() const
@@ -42,15 +46,17 @@ namespace titanium
 			);
 		}
 
-		void set_position(const v2<> position)
+		void set_position(const v2<int> position)
 		{
-			_position = position + (get_size() * _pivot);
+			_position = position - (get_size() * _pivot);
 		}
 
 		void set_parent(object* parent)
 		{
 			_parent = parent;
+			place_at(*parent, _pivot);//set_position(parent->get_absolute_position() + (get_size() * _pivot));
 		}
+
 		v2<float> get_scale() const
 		{
 			return _scale;
@@ -72,9 +78,9 @@ namespace titanium
 		{
 			_texture = desired_texture;
 		}
-		void place_at(const object& other, const v2<float> pivot = { 0,0 })
+		void place_at(const object& other, const v2<float> pivot = { 0,0 }, std::optional<v2<int>> from = std::nullopt, float time_factor = 1.f)
 		{
-			set_position(other.get_position() + (get_size() * pivot));
+			set_position((from ? from->lerp(other.get_absolute_position(), time_factor) : other.get_absolute_position()) + (other.get_size() * pivot));
 		}
 	};
 }

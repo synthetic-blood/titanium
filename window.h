@@ -88,15 +88,17 @@ namespace titanium
 		void draw_text(text& t)
 		{
 			t.draw(_sdl_renderer);
+			SDL_SetTextureAlphaMod(t.t_texture._raw_texture, 128);
 			SDL_Rect dst{ t.transform_to_rect() };
-			SDL_RenderCopy(_sdl_renderer, t._texture, 0, &dst);
+			SDL_RenderCopy(_sdl_renderer, t.t_texture._raw_texture, 0, &dst);
 		}
 		void load_texture(texture& texture_to_load)
 		{
 			texture_to_load.load(_sdl_renderer);
 		}
-		void draw_texture(object& obj)
+		void draw_texture(object& obj, SDL_Color color = { 255,255,255 })
 		{
+			SDL_SetTextureColorMod(obj._texture._raw_texture, color.r, color.g, color.b);
 			SDL_Rect dst{ obj.get_position().x,obj.get_position().y,obj.get_scale().x * obj._texture.get_texture_size().x,obj.get_scale().y * obj._texture.get_texture_size().y };
 			SDL_RenderCopy(_sdl_renderer, obj._texture._raw_texture, 0, &dst);
 		}

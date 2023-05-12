@@ -21,11 +21,17 @@ namespace titanium
 		void operator=(texture& other) {
 			_raw_texture = other._raw_texture;
 		}
+		void from_surface(SDL_Renderer* renderer, SDL_Surface* surface)
+		{
+			_raw_texture = SDL_CreateTextureFromSurface(renderer, surface);
+			SDL_FreeSurface(surface);
+		}
 		v2<> get_texture_size() const
 		{
-			int width;
-			int height;
-			SDL_QueryTexture(_raw_texture, 0, 0, &width, &height);
+			int width{ 0 };
+			int height{ 0 };
+			if (_raw_texture)
+				SDL_QueryTexture(_raw_texture, 0, 0, &width, &height);
 			return v2{ width,height };
 		}
 		~texture()

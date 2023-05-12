@@ -2,9 +2,8 @@
 #include<SDL_ttf.h>
 #include<string>
 #include<memory>
-
+#include<sstream>
 #include"object.h"
-
 namespace titanium
 {
 	class font
@@ -34,23 +33,19 @@ namespace titanium
 		font* _text_font;
 		std::string _text_raw;
 		SDL_Surface* _surface{ nullptr };
-		SDL_Texture* _texture{ nullptr };
+		titanium::texture t_texture;
 		bool text_changed{ false };
-		v2<> _text_box_size;
-		SDL_Texture* draw(SDL_Renderer* renderer)
+		v2<> _text_box;
+		void draw(SDL_Renderer* renderer)
 		{
 			if (text_changed)
 			{
-				SDL_DestroyTexture(_texture);
-				_texture = SDL_CreateTextureFromSurface(renderer, _surface);
-				SDL_FreeSurface(_surface);
+				t_texture.from_surface(renderer, _surface);
+
+				set_texture(t_texture);
+
 				text_changed = false;
 			}
-			return _texture;
-		}
-		void regenerate_box()
-		{
-
 		}
 	public:
 		text(font& display_font, v2<> new_position) :
@@ -60,8 +55,12 @@ namespace titanium
 		{
 			_text_raw = new_text;
 			_surface = TTF_RenderText_Blended(_text_font->_font, _text_raw.c_str(), { 255,255,255 });
-			_text_box_size = { _surface->w,_surface->h };
+			_text_box = { _surface->w,_surface->h };
 			text_changed = true;
+		}
+		v2<int> get_size() const override
+		{
+			return _text_box * get_scale();
 		}
 	};
 }
