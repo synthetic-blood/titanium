@@ -8,6 +8,7 @@ namespace titanium
 {
 	class object
 	{
+		friend class text;
 		friend class window;
 	private:
 		v2<> _position;
