@@ -34,17 +34,17 @@ namespace titanium
 		std::string _text_raw;
 		bool text_changed{ false };
 	public:
-		text(font& display_font, v2<> new_position) :
+		text(font& display_font, v2<float> new_position) :
 			object(new_position),
 			_text_font(&display_font) {}
 		void set_text(const std::string new_text)
 		{
 			_text_raw = new_text;
-			_texture.set_pending(TTF_RenderText_Blended(_text_font->_font, _text_raw.c_str(), { 255,255,255 }));
+			_texture->set_pending(TTF_RenderText_Blended(_text_font->_font, _text_raw.c_str(), { 255,255,255 }));
 		}
 		v2<int> get_size() const override
 		{
-			return _texture.get_texture_size() * get_scale();
+			return _texture->get_texture_size() * get_scale();
 		}
 	};
 }

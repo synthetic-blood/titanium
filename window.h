@@ -16,6 +16,7 @@ namespace titanium
 	class text;
 	class window
 	{
+		friend class texture;
 	private:
 		std::string _title;
 		SDL_Window* _sdl_window{ nullptr };
@@ -32,7 +33,7 @@ namespace titanium
 	public:
 		window(const std::string title) :_title(title)
 		{
-			SDL_VideoInit(0);
+			SDL_Init(SDL_INIT_EVERYTHING);
 			_sdl_window = SDL_CreateWindow(
 				title.c_str(),
 				SDL_WINDOWPOS_CENTERED,
@@ -85,18 +86,42 @@ namespace titanium
 			SDL_SetRenderDrawColor(_sdl_renderer, color.r, color.g, color.b, color.a);
 			SDL_RenderFillRect(_sdl_renderer, &rect);
 		}
-		void load_texture(texture& texture_to_load)
+		void test()
 		{
-			texture_to_load.load(_sdl_renderer);
+			//SDL_Surface* surface = SDL_CreateRGBSurface(0, 600, 100, 24, 0xff0000, 0x00ff00, 0x0000ff, 0);
+			//SDL_Rect rect = { 0, 0, surface->w, surface->h };
+			//SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 255, 0, 0));
+
+			SDL_Surface* surface = SDL_CreateRGBSurface(0, 600, 100, 24, 0xff0000, 0x00ff00, 0x0000ff, 0);
+			Uint32 red = SDL_MapRGB(surface->format, 255, 0, 0);
+			SDL_FillRect(surface, NULL, red);
+
+			SDL_Texture* texture = SDL_CreateTextureFromSurface(_sdl_renderer, surface);
+
+			SDL_Rect dst = { 0,0,surface->w,surface->h };
+			SDL_RenderCopy(_sdl_renderer, texture, 0, &dst);
+			SDL_DestroyTexture(texture);
+			SDL_FreeSurface(surface);
 		}
-		void draw_texture(object& obj, SDL_Color color = { 255,255,255 }, SDL_BlendMode mode = SDL_BLENDMODE_BLEND)
+		void draw_texture(object& obj, SDL_Color color = { 255,255,255, 255 }, SDL_BlendMode mode = SDL_BLENDMODE_BLEND)
 		{
-			if (obj._texture._raw_surface != nullptr)
-				obj._texture.load_pending(_sdl_renderer);
-			SDL_SetTextureColorMod(obj._texture._raw_texture, color.r, color.g, color.b);
-			SDL_SetTextureBlendMode(obj._texture._raw_texture, mode);
-			SDL_Rect dst{ obj.transform_to_rect() };//{ obj.get_position().x,obj.get_position().y,obj.get_scale().x * obj._texture.get_texture_size().x,obj.get_scale().y * obj._texture.get_texture_size().y };
-			SDL_RenderCopy(_sdl_renderer, obj._texture._raw_texture, 0, &dst);
+			if (obj._texture->_raw_surface)
+				obj._texture->from_surface(_sdl_renderer);
+			if (obj._texture->_raw_texture)
+			{
+				//if (color.a != 255)
+					SDL_SetTextureAlphaMod(*obj._texture->_raw_texture, color.a);
+				//if (color.r != 255 && color.g != 255 && color.b != 255)
+					SDL_SetTextureColorMod(*obj._texture->_raw_texture, color.r, color.g, color.b);
+				//if (mode != SDL_BLENDMODE_BLEND)
+					SDL_SetTextureBlendMode(*obj._texture->_raw_texture, mode);
+				SDL_Rect dst{ obj.transform_to_rect() };
+				SDL_RenderCopy(_sdl_renderer, *obj._texture->_raw_texture, 0, &dst);
+			}
 		}
 	};
+	void titanium::texture::load(titanium::window& renderer)
+	{
+		_raw_texture = IMG_LoadTexture(renderer._sdl_renderer, _name.c_str());
+	}
 }
