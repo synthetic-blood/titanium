@@ -88,10 +88,6 @@ namespace titanium
 		}
 		void test()
 		{
-			//SDL_Surface* surface = SDL_CreateRGBSurface(0, 600, 100, 24, 0xff0000, 0x00ff00, 0x0000ff, 0);
-			//SDL_Rect rect = { 0, 0, surface->w, surface->h };
-			//SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 255, 0, 0));
-
 			SDL_Surface* surface = SDL_CreateRGBSurface(0, 600, 100, 24, 0xff0000, 0x00ff00, 0x0000ff, 0);
 			Uint32 red = SDL_MapRGB(surface->format, 255, 0, 0);
 			SDL_FillRect(surface, NULL, red);
